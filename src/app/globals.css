@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(255, 122, 0, 0.08), transparent 24%),
+    linear-gradient(180deg, #0b1018 0%, #070b11 100%);
+}
+
+body {
+  @apply bg-bg bg-grid bg-[size:28px_28px] text-slate-100 font-body;
+}
+
+a {
+  @apply transition-colors;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
