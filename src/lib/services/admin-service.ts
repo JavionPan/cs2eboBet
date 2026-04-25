@@ -15,7 +15,8 @@ export async function createPrediction(
   actor: { id: string; role: UserRole },
   payload: PredictionPayload,
 ) {
-  if (![UserRole.admin, UserRole.publisher].includes(actor.role)) {
+  if (actor.role !== UserRole.admin && actor.role !== UserRole.publisher) {
+
     throw new Error("FORBIDDEN");
   }
 
