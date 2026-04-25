@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  publisher
+  admin
+}
+
+enum PredictionStatus {
+  open
+  closed
+  settled
+  cancelled
+}
+
+enum BetStatus {
+  pending
+  won
+  lost
+  refunded
+}
+
+enum TransactionType {
+  DAILY_REWARD
+  BET_PLACE
+  BET_WIN
+  BET_REFUND
+  ADMIN_ADJUSTMENT
+}
+
+model User {
+  id           String             @id @default(cuid())
+  email        String             @unique
+  username     String             @unique
+  passwordHash String
+  role         UserRole           @default(user)
+  balance      Int                @default(20)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  sessions     Session[]
+  predictions  Prediction[]
+  bets         Bet[]
+  dailyRewards DailyReward[]
+  transactions TokenTransaction[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Prediction {
+  id              String             @id @default(cuid())
+  title           String
+  matchName       String
+  playerName      String?
+  description     String
+  status          PredictionStatus   @default(open)
+  closeAt         DateTime
+  correctOptionId String?
+  createdById     String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  settledAt       DateTime?
+  cancelledAt     DateTime?
+  createdBy       User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  options         PredictionOption[]
+  bets            Bet[]
+  correctOption   PredictionOption?  @relation("CorrectOption", fields: [correctOptionId], references: [id])
+  transactions    TokenTransaction[]
+}
+
+model PredictionOption {
+  id           String       @id @default(cuid())
+  predictionId String
+  label        String
+  odds         Float
+  createdAt    DateTime     @default(now())
+  prediction   Prediction   @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+  bets         Bet[]
+  correctFor   Prediction[] @relation("CorrectOption")
+}
+
+model Bet {
+  id           String             @id @default(cuid())
+  userId       String
+  predictionId String
+  optionId     String
+  amount       Int
+  status       BetStatus          @default(pending)
+  payout       Int                @default(0)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prediction   Prediction         @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+  option       PredictionOption   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  transactions TokenTransaction[]
+
+  @@unique([userId, predictionId])
+}
+
+model DailyReward {
+  id         String   @id @default(cuid())
+  userId     String
+  claimedDay String
+  amount     Int
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, claimedDay])
+}
+
+model TokenTransaction {
+  id           String          @id @default(cuid())
+  userId       String
+  predictionId String?
+  betId        String?
+  type         TransactionType
+  amount       Int
+  description  String
+  createdAt    DateTime        @default(now())
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prediction   Prediction?     @relation(fields: [predictionId], references: [id], onDelete: SetNull)
+  bet          Bet?            @relation(fields: [betId], references: [id], onDelete: SetNull)
+}
