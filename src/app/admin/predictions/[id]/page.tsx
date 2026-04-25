@@ -33,9 +33,9 @@ export default async function AdminPredictionDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-6">
-          <div className="rounded-3xl border border-line bg-panelSoft p-6">
-            <div className="grid gap-3 md:grid-cols-2 text-sm text-slate-300">
-              <p>比赛: {data.prediction.matchName}</p>
+          <div className="rounded-3xl border border-line bg-panel/80 p-6">
+            <div className="grid gap-3 text-sm text-slate-300 md:grid-cols-2">
+              <p>比赛: {data.prediction.matchName || "未填写"}</p>
               <p>状态: {data.prediction.status}</p>
               <p>截止: {formatDateTime(data.prediction.closeAt)}</p>
               <p>下注人数: {data.totalBettors}</p>
@@ -82,7 +82,7 @@ export default async function AdminPredictionDetailPage({
             canEdit={data.prediction.status !== "settled" && data.prediction.status !== "cancelled"}
           />
 
-          <div className="rounded-2xl border border-line bg-panelSoft p-5">
+          <div className="rounded-2xl border border-line bg-panel/80 p-5">
             <h2 className="text-lg font-semibold text-white">下注记录</h2>
             <div className="mt-4 space-y-3">
               {data.prediction.bets.map((bet) => (

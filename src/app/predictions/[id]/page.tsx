@@ -20,18 +20,23 @@ export default async function PredictionDetailPage({
     ? data.prediction.bets.find((bet) => bet.userId === user.id)
     : null;
   const bettable = isPredictionBettable(data.prediction.closeAt, data.prediction.status) && !userBet;
+  const meta = [data.prediction.matchName, data.prediction.playerName].filter(Boolean).join(" · ");
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
       <section className="space-y-6">
-        <div className="rounded-3xl border border-line bg-panelSoft p-6">
+        <div className="rounded-[32px] border border-line bg-panel/80 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-accent">
-                {data.prediction.matchName}
-              </p>
+              {meta && (
+                <p className="text-sm uppercase tracking-[0.3em] text-accent">
+                  {meta}
+                </p>
+              )}
               <h1 className="mt-3 text-3xl font-bold text-white">{data.prediction.title}</h1>
-              <p className="mt-3 max-w-3xl text-slate-300">{data.prediction.description}</p>
+              {data.prediction.description && (
+                <p className="mt-3 max-w-3xl text-slate-300">{data.prediction.description}</p>
+              )}
             </div>
             <div className="rounded-2xl border border-line bg-bg/70 px-4 py-3 text-sm">
               <p>状态: {data.prediction.status}</p>
@@ -41,7 +46,7 @@ export default async function PredictionDetailPage({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-line bg-panelSoft p-5">
+          <div className="rounded-2xl border border-line bg-panel/80 p-5">
             <h2 className="text-lg font-semibold text-white">题目统计</h2>
             <div className="mt-4 space-y-2 text-sm text-slate-300">
               <p>总下注人数: {data.totalBettors}</p>
@@ -53,11 +58,11 @@ export default async function PredictionDetailPage({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-line bg-panelSoft p-5">
+          <div className="rounded-2xl border border-line bg-panel/80 p-5">
             <h2 className="text-lg font-semibold text-white">选项下注分布</h2>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {data.optionStats.map((option) => (
-                <div key={option.optionId} className="rounded-xl border border-line bg-bg/70 px-4 py-3 text-sm">
+                <div key={option.optionId} className="rounded-2xl border border-line bg-bg/70 px-4 py-3 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-white">{option.label}</span>
                     <span className="text-accent">赔率 {option.odds.toFixed(2)}</span>
@@ -71,7 +76,7 @@ export default async function PredictionDetailPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-line bg-panelSoft p-5">
+        <div className="rounded-2xl border border-line bg-panel/80 p-5">
           <h2 className="text-lg font-semibold text-white">下注记录</h2>
           <div className="mt-4 space-y-3">
             {data.prediction.bets.map((bet) => (
@@ -92,12 +97,12 @@ export default async function PredictionDetailPage({
 
       <aside className="space-y-4">
         {!user && (
-          <div className="rounded-2xl border border-line bg-panelSoft p-5 text-sm text-slate-300">
+          <div className="rounded-2xl border border-line bg-panel/80 p-5 text-sm text-slate-300">
             登录后才能参与预测。<Link href="/login" className="text-accent">去登录</Link>
           </div>
         )}
         {userBet && (
-          <div className="rounded-2xl border border-line bg-panelSoft p-5 text-sm text-slate-300">
+          <div className="rounded-2xl border border-line bg-panel/80 p-5 text-sm text-slate-300">
             你已经下注过这道题：{userBet.amount} 代币，选择 {userBet.option.label}。
           </div>
         )}

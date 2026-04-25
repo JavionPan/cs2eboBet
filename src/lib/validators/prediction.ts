@@ -7,9 +7,9 @@ export const optionInputSchema = z.object({
 
 export const predictionInputSchema = z.object({
   title: z.string().min(3, "标题至少 3 个字符"),
-  matchName: z.string().min(2, "比赛名称至少 2 个字符"),
+  matchName: z.string().optional().or(z.literal("")),
   playerName: z.string().optional().or(z.literal("")),
-  description: z.string().min(5, "描述至少 5 个字符"),
+  description: z.string().optional().or(z.literal("")),
   closeAt: z.string().min(1, "请选择截止时间"),
   options: z.array(optionInputSchema).min(2, "至少需要 2 个选项"),
 });

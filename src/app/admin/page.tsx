@@ -21,26 +21,30 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4">
-        {predictions.map((prediction) => (
-          <Link
-            key={prediction.id}
-            href={`/admin/predictions/${prediction.id}`}
-            className="rounded-2xl border border-line bg-panelSoft p-5"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-white">{prediction.title}</h2>
-                <p className="mt-2 text-sm text-slate-300">
-                  {prediction.matchName} · {prediction.createdBy.username} · {prediction.bets.length} 笔下注
-                </p>
+        {predictions.map((prediction) => {
+          const meta = [prediction.matchName, prediction.createdBy.username, `${prediction.bets.length} 笔下注`]
+            .filter(Boolean)
+            .join(" · ");
+
+          return (
+            <Link
+              key={prediction.id}
+              href={`/admin/predictions/${prediction.id}`}
+              className="rounded-[28px] border border-line bg-panel/80 p-5"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold text-white">{prediction.title}</h2>
+                  <p className="mt-2 text-sm text-slate-300">{meta}</p>
+                </div>
+                <div className="text-sm text-muted">
+                  <p>状态: {prediction.status}</p>
+                  <p className="mt-1">截止: {formatDateTime(prediction.closeAt)}</p>
+                </div>
               </div>
-              <div className="text-sm text-muted">
-                <p>状态: {prediction.status}</p>
-                <p className="mt-1">截止: {formatDateTime(prediction.closeAt)}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

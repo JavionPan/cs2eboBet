@@ -79,6 +79,22 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
     );
   };
 
+  const addOption = () => {
+    setOptions((current) => [
+      ...current,
+      { label: `选项 ${String.fromCharCode(65 + current.length)}`, odds: 2, probability: 0 },
+    ]);
+  };
+
+  const removeOption = (index: number) => {
+    setOptions((current) => {
+      if (current.length <= 2) {
+        return current;
+      }
+      return current.filter((_, currentIndex) => currentIndex !== index);
+    });
+  };
+
   const applyRecommendedOdds = () => {
     setOptions((current) =>
       current.map((option, index) => ({
@@ -118,7 +134,14 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
   };
 
   return (
-    <div className="rounded-3xl border border-line bg-panelSoft p-6">
+    <div className="rounded-[32px] border border-line bg-panel p-6 shadow-esports">
+      <div className="mb-6 flex flex-col gap-2">
+        <p className="text-xs uppercase tracking-[0.32em] text-accent/80">Prediction Editor</p>
+        <h2 className="text-2xl font-semibold text-white">
+          {mode === "create" ? "发布新预测题" : "编辑预测题"}
+        </h2>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
           <span className="mb-2 block text-sm text-slate-200">标题</span>
@@ -126,15 +149,17 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+            placeholder="例如：今晚 m0NESY 击杀数是否超过 18？"
           />
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-sm text-slate-200">比赛名称</span>
+          <span className="mb-2 block text-sm text-slate-200">比赛名称（可空）</span>
           <input
             value={matchName}
             onChange={(event) => setMatchName(event.target.value)}
             className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+            placeholder="例如：NAVI vs Spirit"
           />
         </label>
       </div>
@@ -146,6 +171,7 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
             value={playerName}
             onChange={(event) => setPlayerName(event.target.value)}
             className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+            placeholder="例如：donk"
           />
         </label>
 
@@ -161,16 +187,17 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
       </div>
 
       <label className="mt-4 block">
-        <span className="mb-2 block text-sm text-slate-200">描述</span>
+        <span className="mb-2 block text-sm text-slate-200">描述（可空）</span>
         <textarea
           rows={4}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           className="w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+          placeholder="补充规则、说明或留空都可以"
         />
       </label>
 
-      <div className="mt-6 rounded-2xl border border-line bg-bg/40 p-4">
+      <div className="mt-6 rounded-2xl border border-line bg-bg/30 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold text-white">真实赔率辅助</p>
@@ -217,14 +244,39 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white">选项设置</h3>
+          <p className="mt-1 text-sm text-muted">现在支持多个选项，至少保留 2 个。</p>
+        </div>
+        <button
+          type="button"
+          onClick={addOption}
+          className="rounded-xl border border-line bg-bg/50 px-4 py-2 text-sm font-medium text-white"
+        >
+          新增选项
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-4 xl:grid-cols-3 md:grid-cols-2">
         {options.map((option, index) => (
-          <div key={index} className="rounded-2xl border border-line bg-bg/70 p-4">
-            <p className="text-sm font-semibold text-white">选项 {index + 1}</p>
+          <div key={index} className="rounded-2xl border border-line bg-bg/55 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-white">选项 {index + 1}</p>
+              <button
+                type="button"
+                onClick={() => removeOption(index)}
+                disabled={options.length <= 2}
+                className="text-xs text-muted disabled:opacity-40"
+              >
+                删除
+              </button>
+            </div>
             <input
               value={option.label}
               onChange={(event) => updateOption(index, "label", event.target.value)}
               className="mt-3 w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+              placeholder={`例如：结果 ${index + 1}`}
             />
             <input
               type="number"
@@ -233,7 +285,7 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
               value={option.probability ?? 0}
               onChange={(event) => updateOption(index, "probability", event.target.value)}
               className="mt-3 w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
-              placeholder="主观概率，比如 55"
+              placeholder="主观概率，比如 34"
             />
             <input
               type="number"
@@ -242,6 +294,7 @@ export function AdminPredictionForm({ mode, prediction }: Props) {
               value={option.odds}
               onChange={(event) => updateOption(index, "odds", event.target.value)}
               className="mt-3 w-full rounded-xl border border-line bg-bg px-4 py-3 text-white outline-none focus:border-accent"
+              placeholder="例如 2.35"
             />
             <div className="mt-3 rounded-xl border border-line/70 bg-panel/60 px-4 py-3 text-sm text-slate-300">
               <p>归一化概率: {recommendedOdds[index]?.normalizedProbability ?? 0}%</p>

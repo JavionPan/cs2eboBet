@@ -4,9 +4,9 @@ import { predictionInputSchema } from "@/lib/validators/prediction";
 
 type PredictionPayload = {
   title: string;
-  matchName: string;
+  matchName?: string;
   playerName?: string;
-  description: string;
+  description?: string;
   closeAt: string;
   options: { label: string; odds: number }[];
 };
@@ -16,7 +16,6 @@ export async function createPrediction(
   payload: PredictionPayload,
 ) {
   if (actor.role !== UserRole.admin && actor.role !== UserRole.publisher) {
-
     throw new Error("FORBIDDEN");
   }
 
@@ -28,9 +27,9 @@ export async function createPrediction(
   return prisma.prediction.create({
     data: {
       title: parsed.data.title,
-      matchName: parsed.data.matchName,
+      matchName: parsed.data.matchName || "",
       playerName: parsed.data.playerName || null,
-      description: parsed.data.description,
+      description: parsed.data.description || "",
       closeAt: new Date(parsed.data.closeAt),
       createdById: actor.id,
       status: PredictionStatus.open,
@@ -84,9 +83,9 @@ export async function updatePrediction(
       where: { id: predictionId },
       data: {
         title: parsed.data.title,
-        matchName: parsed.data.matchName,
+        matchName: parsed.data.matchName || "",
         playerName: parsed.data.playerName || null,
-        description: parsed.data.description,
+        description: parsed.data.description || "",
         closeAt: new Date(parsed.data.closeAt),
       },
     });
